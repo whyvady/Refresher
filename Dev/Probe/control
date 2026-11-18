@@ -1,0 +1,9 @@
+Package: com.refresher.probe
+Name: Refresher Probe
+Version: 0.1.0
+Architecture: iphoneos-arm
+Description: Development-only runtime dump for Refresher
+Maintainer: Refresher
+Author: Refresher
+Section: Tweaks
+Depends: mobilesubstrate

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>title</key><string>Status Bar</string>
+    <key>items</key>
+    <array>
+        <dict>
+            <key>cell</key><string>PSGroupCell</string>
+            <key>label</key><string>Visible Elements</string>
+            <key>footerText</key><string>Turn an element off to hide it from the status bar. Running apps pick up changes after they are relaunched.</string>
+        </dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Time</string><key>key</key><string>showTime</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Battery</string><key>key</key><string>showBattery</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Battery Percentage</string><key>key</key><string>showBatteryPercent</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Signal Strength</string><key>key</key><string>showSignal</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Carrier</string><key>key</key><string>showCarrier</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Wi-Fi</string><key>key</key><string>showWiFi</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Bluetooth</string><key>key</key><string>showBluetooth</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Airplane Mode</string><key>key</key><string>showAirplaneMode</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Do Not Disturb</string><key>key</key><string>showDoNotDisturb</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Alarm</string><key>key</key><string>showAlarm</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Location Services</string><key>key</key><string>showLocation</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Rotation Lock</string><key>key</key><string>showRotationLock</string><key>default</key><true/></dict>
+        <dict><key>cell</key><string>PSSwitchCell</string><key>label</key><string>Network Activity</string><key>key</key><string>showActivity</string><key>default</key><true/></dict>
+    </array>
+</dict>
+</plist>

@@ -1,0 +1,11 @@
+Package: com.refresher.tweak
+Name: Refresher
+Version: 0.4.0
+Architecture: iphoneos-arm
+Description: Modern iOS look for iOS 12: custom icons, Dock style and status bar control
+Maintainer: Refresher
+Author: Refresher
+Section: Tweaks
+Depends: mobilesubstrate, preferenceloader
+Conflicts: com.glazier.tweak
+Replaces: com.glazier.tweak

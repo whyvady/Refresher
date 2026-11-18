@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>title</key><string>Dock</string>
+    <key>items</key>
+    <array>
+        <dict>
+            <key>cell</key><string>PSGroupCell</string>
+            <key>label</key><string>Style</string>
+        </dict>
+        <dict>
+            <key>cell</key><string>PSLinkListCell</string>
+            <key>detail</key><string>PSListItemsController</string>
+            <key>label</key><string>Dock Style</string>
+            <key>key</key><string>dockStyle</string>
+            <key>default</key><string>Default</string>
+            <key>validValues</key>
+            <array><string>Default</string><string>Light</string><string>Dark</string></array>
+            <key>validTitles</key>
+            <array><string>Default</string><string>Light</string><string>Dark</string></array>
+        </dict>
+    </array>
+</dict>
+</plist>
