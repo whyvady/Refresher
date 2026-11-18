@@ -2,8 +2,9 @@
 
 @interface RFPickerController : UIViewController
 
-- (instancetype)initWithTitle:(NSString *)title
-                     selected:(NSString *)selected
-                   completion:(void (^)(NSString *name))completion;
++ (void)presentWithTitle:(NSString *)title
+                selected:(NSString *)selected
+                  anchor:(CGRect (^)(void))anchor
+              completion:(void (^)(NSString *name))completion;
 
 @end

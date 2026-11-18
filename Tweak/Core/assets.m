@@ -92,3 +92,12 @@ void RFOnPreferencesChange(void (^handler)(void)) {
         [RFChangeHandlers addObject:[handler copy]];
     }
 }
+
+NSString *RFIconAlias(NSString *key) {
+    static NSDictionary *aliases;
+    static dispatch_once_t token;
+    dispatch_once(&token, ^{
+        aliases = [NSDictionary dictionaryWithContentsOfFile:[RF_ICONS_ROOT stringByAppendingString:@"aliases.plist"]] ?: @{};
+    });
+    return aliases[key.lowercaseString];
+}

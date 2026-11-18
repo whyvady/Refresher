@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>com.apple.facetime</key>
+    <string>facetime</string>
+    <key>com.apple.mobileme.fmip1</key>
+    <string>find-my</string>
+    <key>find-iphone</key>
+    <string>find-my</string>
+    <key>my-iphone</key>
+    <string>find-my</string>
+</dict>
+</plist>

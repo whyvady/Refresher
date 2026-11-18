@@ -1,31 +1,66 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
+#import "assets.h"
 #import "shared.h"
 
-@interface SBDockView : UIView
+@interface SBFloatingDockPlatterView : UIView
 @end
 
 static const NSInteger RFDockBlurTag = 0x52464442;
-static UIBlurEffectStyle RFDockBlurStyle;
+static const void *RFDockStyleKey = &RFDockStyleKey;
+static NSHashTable<UIView *> *RFDockPlatters;
 
-static UIView *RFDockBackground(UIView *dock) {
-    Ivar ivar = class_getInstanceVariable([dock class], "_backgroundView");
-    return ivar ? object_getIvar(dock, ivar) : nil;
+static NSNumber *RFDockBlurStyle(void) {
+    NSString *style = RFStringPreference(@"dockStyle", @"System");
+    if ([style isEqualToString:@"System"]) style = RFStringPreference(@"theme", @"Light");
+    if ([style isEqualToString:@"Light"]) return @(UIBlurEffectStyleLight);
+    if ([style isEqualToString:@"Dark"]) return @(UIBlurEffectStyleDark);
+    return nil;
 }
 
-static void RFDockApply(UIView *dock) {
-    UIView *background = RFDockBackground(dock);
+static UIView *RFDockBackground(UIView *platter) {
+    Ivar ivar = class_getInstanceVariable([platter class], "_backgroundView");
+    return ivar ? object_getIvar(platter, ivar) : nil;
+}
+
+static void RFDockApply(UIView *platter) {
+    UIView *background = RFDockBackground(platter);
     if (!background) return;
 
+    [RFDockPlatters addObject:platter];
+
     UIVisualEffectView *blur = (UIVisualEffectView *)[background viewWithTag:RFDockBlurTag];
+    NSNumber *style = RFDockBlurStyle();
+
+    if (!style) {
+        if (blur) {
+            [blur removeFromSuperview];
+            for (UIView *subview in background.subviews) subview.hidden = NO;
+        }
+        return;
+    }
+
+    if (blur && ![objc_getAssociatedObject(blur, RFDockStyleKey) isEqual:style]) {
+        [blur removeFromSuperview];
+        blur = nil;
+    }
+
     if (!blur) {
-        blur = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:RFDockBlurStyle]];
+        blur = [[UIVisualEffectView alloc] initWithEffect:[UIBlurEffect effectWithStyle:(UIBlurEffectStyle)style.integerValue]];
         blur.tag = RFDockBlurTag;
         blur.userInteractionEnabled = NO;
+        blur.clipsToBounds = YES;
         blur.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        objc_setAssociatedObject(blur, RFDockStyleKey, style, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         [background addSubview:blur];
     }
 
+    CGFloat radius = MAX(background.layer.cornerRadius, platter.layer.cornerRadius);
+    for (UIView *subview in background.subviews) {
+        if (subview != blur) radius = MAX(radius, subview.layer.cornerRadius);
+    }
+
+    blur.layer.cornerRadius = radius;
     blur.frame = background.bounds;
     for (UIView *subview in background.subviews) {
         if (subview != blur) subview.hidden = YES;
@@ -34,9 +69,19 @@ static void RFDockApply(UIView *dock) {
 
 %group DockStyle
 
-%hook SBDockView
+%hook SBFloatingDockPlatterView
 
 - (void)layoutSubviews {
+    %orig;
+    RFDockApply(self);
+}
+
+- (void)didMoveToWindow {
+    %orig;
+    RFDockApply(self);
+}
+
+- (void)setLightStyle:(NSInteger)style {
     %orig;
     RFDockApply(self);
 }
@@ -47,14 +92,9 @@ static void RFDockApply(UIView *dock) {
 
 %ctor {
     if (!RFIsSpringBoard()) return;
-
-    NSString *style = RFStringPreference(@"dockStyle", @"Default");
-    if ([style isEqualToString:@"Light"]) {
-        RFDockBlurStyle = UIBlurEffectStyleLight;
-    } else if ([style isEqualToString:@"Dark"]) {
-        RFDockBlurStyle = UIBlurEffectStyleDark;
-    } else {
-        return;
-    }
+    RFDockPlatters = [NSHashTable weakObjectsHashTable];
+    RFOnPreferencesChange(^{
+        for (UIView *platter in RFDockPlatters.allObjects) RFDockApply(platter);
+    });
     %init(DockStyle);
 }

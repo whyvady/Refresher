@@ -47,12 +47,19 @@ static UIImage *RFCalendarCompose(CGSize size, CGFloat scale) {
     return result;
 }
 
+static UIImage *RFCalendarApply(SBIcon *icon, UIImage *original) {
+    if (!original || RFAlternativeIcon([icon leafIdentifier])) return original;
+    return RFCalendarCompose(original.size, original.scale) ?: original;
+}
+
 %hook SBCalendarApplicationIcon
 
 - (UIImage *)generateIconImage:(int)format {
-    UIImage *original = %orig;
-    if (!original || RFAlternativeIcon([self leafIdentifier])) return original;
-    return RFCalendarCompose(original.size, original.scale) ?: original;
+    return RFCalendarApply(self, %orig);
+}
+
+- (UIImage *)getUnmaskedIconImage:(int)format {
+    return RFCalendarApply(self, %orig);
 }
 
 %end

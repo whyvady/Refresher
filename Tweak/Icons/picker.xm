@@ -5,8 +5,27 @@
 #import "picker-controller.h"
 #import "shared.h"
 
+@interface SBFloatingDockPlatterView : UIView
+@end
+
 static const void *RFPickerRecognizerKey = &RFPickerRecognizerKey;
 static const CGFloat RFPickerCloseBoxZone = 30;
+
+static __weak UIView *RFPickerDock;
+
+static CGRect RFPickerDockRect(void) {
+    UIView *dock = RFPickerDock;
+    if (!dock.window) return CGRectZero;
+
+    UIView *background = nil;
+    @try {
+        background = [dock valueForKey:@"_backgroundView"];
+    } @catch (NSException *exception) {
+    }
+
+    UIView *target = (background.window && background.bounds.size.width > 0) ? background : dock;
+    return [target convertRect:target.bounds toCoordinateSpace:[UIScreen mainScreen].coordinateSpace];
+}
 
 static BOOL RFPickerAllowed(SBIconView *view) {
     if (!RFBoolPreference(@"altIcons", YES) || ![view isEditing]) return NO;
@@ -19,22 +38,17 @@ static BOOL RFPickerAllowed(SBIconView *view) {
 static void RFPickerPresent(SBIconView *view) {
     SBIcon *icon = [view icon];
     NSString *bundleID = [icon leafIdentifier];
+    if (!bundleID.length) return;
 
-    UIViewController *presenter = view.window.rootViewController;
-    while (presenter.presentedViewController) presenter = presenter.presentedViewController;
-    if (!bundleID.length || !presenter) return;
-
-    RFPickerController *picker = [[RFPickerController alloc]
-        initWithTitle:[icon displayName]
-             selected:RFAlternativeIcon(bundleID)
-           completion:^(NSString *name) {
+    [RFPickerController presentWithTitle:[icon displayName]
+                                selected:RFAlternativeIcon(bundleID)
+                                  anchor:^CGRect {
+        return RFPickerDockRect();
+    }
+                              completion:^(NSString *name) {
         RFSetAlternativeIcon(bundleID, name);
         RFIconViewsRefresh(bundleID);
     }];
-
-    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:picker];
-    navigation.modalPresentationStyle = UIModalPresentationFormSheet;
-    [presenter presentViewController:navigation animated:YES completion:nil];
 }
 
 @interface RFPickerGestureHandler : NSObject <UIGestureRecognizerDelegate>
@@ -74,6 +88,15 @@ static void RFPickerPresent(SBIconView *view) {
 }
 
 @end
+
+%hook SBFloatingDockPlatterView
+
+- (void)didMoveToWindow {
+    %orig;
+    if (self.window) RFPickerDock = self;
+}
+
+%end
 
 %hook SBIconView
 

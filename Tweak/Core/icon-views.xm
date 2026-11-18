@@ -17,6 +17,12 @@ void RFIconViewsRefresh(NSString *bundleID) {
 
         SBIconImageView *imageView = [view _iconImageView];
         [icon purgeCachedImages];
+        if ([icon isKindOfClass:%c(SBApplicationIcon)]) {
+            @try {
+                [icon setValue:nil forKey:@"cachedSquareHomeScreenContentsImage"];
+            } @catch (NSException *exception) {
+            }
+        }
         if ([imageView respondsToSelector:@selector(clearCachedImages)]) [imageView clearCachedImages];
         [icon reloadIconImagePurgingImageCache:YES];
         if ([imageView respondsToSelector:@selector(updateImageAnimated:)]) [imageView updateImageAnimated:NO];

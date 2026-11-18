@@ -30,6 +30,26 @@
             <key>cell</key>
             <string>PSGroupCell</string>
             <key>label</key>
+            <string>Page Dots</string>
+            <key>footerText</key>
+            <string>Hides the page indicator dots under the icons.</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSSwitchCell</string>
+            <key>label</key>
+            <string>Hide Page Dots</string>
+            <key>key</key>
+            <string>hidePageDots</string>
+            <key>default</key>
+            <false/>
+            <key>PostNotification</key>
+            <string>com.refresher.tweak/reload</string>
+        </dict>
+        <dict>
+            <key>cell</key>
+            <string>PSGroupCell</string>
+            <key>label</key>
             <string>Apps</string>
         </dict>
         <dict>
