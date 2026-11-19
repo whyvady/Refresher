@@ -6,4 +6,5 @@ refresher_FILES = $(wildcard Core/*.m Core/*.xm Icons/*.xm Icons/*.m Dock/*.xm H
 refresher_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -I../Shared -ICore
 refresher_FRAMEWORKS = UIKit QuartzCore
 
+refresher_FRAMEWORKS += ImageIO
 include $(THEOS_MAKE_PATH)/tweak.mk

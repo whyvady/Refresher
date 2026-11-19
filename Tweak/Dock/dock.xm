@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 #import "assets.h"
+#import "corners.h"
 #import "shared.h"
 
 @interface SBFloatingDockPlatterView : UIView
@@ -60,7 +61,7 @@ static void RFDockApply(UIView *platter) {
         if (subview != blur) radius = MAX(radius, subview.layer.cornerRadius);
     }
 
-    blur.layer.cornerRadius = radius;
+    RFSetCorners(blur.layer, radius);
     blur.frame = background.bounds;
     for (UIView *subview in background.subviews) {
         if (subview != blur) subview.hidden = YES;

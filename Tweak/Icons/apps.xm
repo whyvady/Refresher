@@ -1,4 +1,6 @@
 #import <UIKit/UIKit.h>
+#import <objc/message.h>
+#import "apps.h"
 #import "app-options.h"
 #import "assets.h"
 #import "icon-views.h"
@@ -8,6 +10,7 @@
 static NSCache *RFAppsCache;
 static NSMutableDictionary *RFAppsNames;
 static NSString *RFAppsSignature;
+static __thread BOOL RFAppsIgnoreAlternative;
 
 static NSString *RFAppsSlug(NSString *text) {
     NSCharacterSet *separators = [NSCharacterSet alphanumericCharacterSet].invertedSet;
@@ -23,17 +26,21 @@ static NSString *RFAppsDisplayName(NSString *bundleID, NSString *displayName) {
     }
 }
 
-static UIImage *RFAppsSource(NSString *bundleID, NSString *displayName) {
+static NSArray *RFAppsCandidates(NSString *bundleID, NSString *displayName) {
     NSString *slug = RFAppsSlug(displayName ?: @"");
     NSString *last = [bundleID.lowercaseString componentsSeparatedByString:@"."].lastObject ?: @"";
 
-    NSArray *names = @[
-        RFAlternativeIcon(bundleID) ?: @"",
+    return @[
         RFIconAlias(bundleID) ?: @"",
         RFIconAlias(slug) ?: @"",
         slug,
         last
     ];
+}
+
+static UIImage *RFAppsSource(NSString *bundleID, NSString *displayName, NSString *alternative) {
+    NSMutableArray *names = [NSMutableArray arrayWithObject:alternative ?: @""];
+    [names addObjectsFromArray:RFAppsCandidates(bundleID, displayName)];
 
     for (NSString *name in names) {
         if (!name.length) continue;
@@ -47,13 +54,14 @@ static UIImage *RFAppsCompose(NSString *bundleID, NSString *displayName, CGSize 
     if (!bundleID.length || size.width <= 0 || size.height <= 0) return nil;
 
     NSString *name = RFAppsDisplayName(bundleID, displayName);
+    NSString *alternative = RFAppsIgnoreAlternative ? nil : RFAlternativeIcon(bundleID);
     NSString *key = [NSString stringWithFormat:@"%@|%@|%@|%.0fx%.0f@%.0f",
-                     RFIconTheme(), bundleID, RFAlternativeIcon(bundleID) ?: @"", size.width, size.height, scale];
+                     RFIconTheme(), bundleID, alternative ?: @"", size.width, size.height, scale];
 
     id cached = [RFAppsCache objectForKey:key];
     if (cached) return cached == [NSNull null] ? nil : cached;
 
-    UIImage *source = RFAppsSource(bundleID, name);
+    UIImage *source = RFAppsSource(bundleID, name, alternative);
     UIImage *result = nil;
 
     if (source) {
@@ -79,6 +87,34 @@ static UIImage *RFAppsApply(SBIcon *icon, NSString *bundleID, UIImage *original)
     if (!name.length) name = [icon displayName];
 
     return RFAppsCompose(bundleID, name, original.size, original.scale) ?: original;
+}
+
+UIImage *RFAppsDefaultIcon(id icon) {
+    RFAppsIgnoreAlternative = YES;
+    UIImage *image = ((UIImage *(*)(id, SEL, int))objc_msgSend)(icon, @selector(generateIconImage:), 2);
+    RFAppsIgnoreAlternative = NO;
+    return image;
+}
+
+NSArray *RFAppsOwnIconNames(id icon) {
+    SBIcon *source = icon;
+    NSString *bundleID = [source leafIdentifier];
+    if (!bundleID.length) return @[];
+
+    NSString *name = RFAppsDisplayName(bundleID, [source displayName]);
+    for (NSString *candidate in RFAppsCandidates(bundleID, name)) {
+        if (!candidate.length) continue;
+        if (RFIconImage(nil, RFIconVariantName(candidate, @"Light")) ||
+            RFIconImage(nil, RFIconVariantName(candidate, @"Dark"))) {
+            return @[candidate];
+        }
+    }
+    return @[];
+}
+
+void RFAppsRefresh(NSString *bundleID) {
+    RFAppsSignature = RFAlternativeSignature();
+    RFIconViewsRefresh(bundleID);
 }
 
 %hook SBApplicationIcon

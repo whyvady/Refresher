@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
+#import "apps.h"
 #import "app-options.h"
 #import "icon-views.h"
 #import "picker-controller.h"
@@ -42,12 +43,14 @@ static void RFPickerPresent(SBIconView *view) {
 
     [RFPickerController presentWithTitle:[icon displayName]
                                 selected:RFAlternativeIcon(bundleID)
+                             defaultIcon:RFAppsDefaultIcon(icon)
+                             ownNames:RFAppsOwnIconNames(icon)
                                   anchor:^CGRect {
         return RFPickerDockRect();
     }
                               completion:^(NSString *name) {
         RFSetAlternativeIcon(bundleID, name);
-        RFIconViewsRefresh(bundleID);
+        RFAppsRefresh(bundleID);
     }];
 }
 
